@@ -1,0 +1,43 @@
+<!-- BEGIN #app -->
+<div id="app" class="app" [ngClass]="{
+	'd-none': !appLoaded,
+	'app-without-header': appSettings.appHeaderNone,
+	'app-without-sidebar': appSettings.appSidebarNone,
+	'app-with-top-nav': appSettings.appTopNav,
+	'app-boxed-layout': appSettings.appBoxedLayout,
+	'app-sidebar-minified': appSettings.appSidebarMinified,
+	'app-sidebar-mobile-toggled': appSettings.appSidebarMobileToggled,
+	'app-content-full-height': appSettings.appContentFullHeight,
+	'app-content-full-width': appSettings.appContentFullWidth,
+	'app-footer-fixed': appSettings.appFooter,
+	'vh-100': appSettings.appVh100
+}">
+
+  @if (!appSettings.appHeaderNone) {
+    <header></header>
+  }
+
+  @if (appSettings.appTopNav) {
+    <top-nav></top-nav>
+  }
+
+  @if (!appSettings.appSidebarNone) {
+    <sidebar></sidebar>
+  }
+
+  <div id="content" class="app-content" [class]="appSettings.appContentClass">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (appSettings.appFooter) {
+    <footer></footer>
+  }
+
+  @if (!appSettings.appThemePanelNone) {
+    <theme-panel
+      (appDarkModeChanged)="onAppDarkModeChanged($event)"
+      (appThemeChanged)="onAppThemeChanged($event)"
+    ></theme-panel>
+  }
+</div>
+<!-- END #app -->

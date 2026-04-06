@@ -1,0 +1,853 @@
+<!-- BEGIN container -->
+<div class="container">
+	<!-- BEGIN row -->
+	<div class="row justify-content-center">
+		<!-- BEGIN col-10 -->
+		<div class="col-xl-10">
+			<!-- BEGIN row -->
+			<div class="row">
+				<!-- BEGIN col-9 -->
+				<div class="col-xl-9">
+
+					<!-- BEGIN #general -->
+					<div id="general" class="mb-5">
+						<h4><i class="far fa-user fa-fw"></i> General</h4>
+						<p>View and update your account information.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Name</div>
+										<div class="text-gray-500">{{ currentUser?.displayName || 'Not set' }}</div>
+									</div>
+									<div>
+										<a href="#modalEditName" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Email address</div>
+										<div class="text-gray-500">{{ currentUser?.email || 'Not set' }}</div>
+									</div>
+									<div>
+										@if (currentUser?.isEntraUser) {
+											<span class="badge bg-info bg-opacity-15 text-info"><i class="fab fa-microsoft me-1"></i>Managed by Microsoft</span>
+										} @else {
+											<a href="#modalEditEmail" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+										}
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Account type</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (currentUser?.isEntraUser) {
+												<i class="fab fa-microsoft fa-fw me-1 text-info"></i> Microsoft Entra ID
+											} @else {
+												<i class="fa fa-key fa-fw me-1 text-theme"></i> Local account
+											}
+										</div>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Tenant</div>
+										<div class="text-gray-500 font-monospace small">{{ currentUser?.tenantId }}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #general -->
+
+					<!-- BEGIN #security -->
+					<div id="security" class="mb-5">
+						<h4><i class="fa fa-shield-alt fa-fw"></i> Security</h4>
+						<p>Password policies, multi-factor authentication, and account protection.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Password</div>
+										<div class="text-gray-500">
+											@if (currentUser?.isEntraUser) {
+												Managed by Microsoft Entra ID
+											} @else {
+												Last changed: Unknown
+											}
+										</div>
+									</div>
+									<div>
+										@if (!currentUser?.isEntraUser) {
+											<a href="#modalChangePassword" data-bs-toggle="modal" class="btn btn-default w-100px">Change</a>
+										}
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Password strength requirements</div>
+										<div class="text-gray-500">
+											<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i>
+											Min {{ settings.passwordMinLength }} characters, uppercase, lowercase, digit, special character
+										</div>
+									</div>
+									<div>
+										<a href="#modalPasswordPolicy" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Two-factor authentication</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.mfaEnabled) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="toggleMfa()">
+											{{ settings.mfaEnabled ? 'Disable' : 'Enable' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Account lockout</div>
+										<div class="text-gray-500">
+											Lock after {{ settings.lockoutMaxAttempts }} failed attempts for {{ settings.lockoutDurationMinutes }} minutes
+										</div>
+									</div>
+									<div>
+										<a href="#modalLockout" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #security -->
+
+					<!-- BEGIN #sessions -->
+					<div id="sessions" class="mb-5">
+						<h4><i class="far fa-clock fa-fw"></i> Sessions</h4>
+						<p>Configure session timeout and idle behavior.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Session timeout</div>
+										<div class="text-gray-500">
+											Sessions expire after {{ settings.sessionTimeoutMinutes }} minutes of inactivity
+										</div>
+									</div>
+									<div>
+										<a href="#modalSessionTimeout" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Remember me duration</div>
+										<div class="text-gray-500">
+											{{ settings.rememberMeDays }} days
+										</div>
+									</div>
+									<div>
+										<a href="#modalRememberMe" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Concurrent sessions</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.allowConcurrentSessions) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Multiple sessions allowed
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-warning me-1"></i> Single session only (new login terminates previous)
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="toggleConcurrentSessions()">
+											{{ settings.allowConcurrentSessions ? 'Restrict' : 'Allow' }}
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #sessions -->
+
+					<!-- BEGIN #notifications -->
+					<div id="notifications" class="mb-5">
+						<h4><i class="far fa-bell fa-fw"></i> Notifications</h4>
+						<p>Configure which notifications you receive and how.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Email notifications</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.emailNotifications) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="settings.emailNotifications = !settings.emailNotifications; markDirty()">
+											{{ settings.emailNotifications ? 'Disable' : 'Enable' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Security alerts</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Always enabled
+										</div>
+										<div class="text-gray-500 small">Failed login attempts, password changes, new device logins</div>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>System updates</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.systemUpdateNotifications) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="settings.systemUpdateNotifications = !settings.systemUpdateNotifications; markDirty()">
+											{{ settings.systemUpdateNotifications ? 'Disable' : 'Enable' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>User activity digest</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.activityDigest !== 'none') {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> {{ settings.activityDigest | titlecase }}
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<a href="#modalDigest" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #notifications -->
+
+					<!-- BEGIN #users -->
+					<div id="users" class="mb-5">
+						<h4><i class="fa fa-users fa-fw"></i> User Management</h4>
+						<p>Manage user accounts, roles, and access permissions.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>User registration</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.allowSelfRegistration) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Self-registration enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-warning me-1"></i> Invite only
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="settings.allowSelfRegistration = !settings.allowSelfRegistration; markDirty()">
+											{{ settings.allowSelfRegistration ? 'Restrict' : 'Allow' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Require email verification</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.requireEmailVerification) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="settings.requireEmailVerification = !settings.requireEmailVerification; markDirty()">
+											{{ settings.requireEmailVerification ? 'Disable' : 'Enable' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Microsoft Entra ID sign-in</div>
+										<div class="text-gray-500 d-flex align-items-center">
+											@if (settings.allowEntraLogin) {
+												<i class="fa fa-circle fs-8px fa-fw text-success me-1"></i> Enabled
+											} @else {
+												<i class="fa fa-circle fs-8px fa-fw text-muted me-1"></i> Disabled
+											}
+										</div>
+									</div>
+									<div>
+										<button class="btn btn-default w-100px" (click)="settings.allowEntraLogin = !settings.allowEntraLogin; markDirty()">
+											{{ settings.allowEntraLogin ? 'Disable' : 'Enable' }}
+										</button>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Default user role</div>
+										<div class="text-gray-500">{{ settings.defaultUserRole }}</div>
+									</div>
+									<div>
+										<a href="#modalDefaultRole" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Maximum users</div>
+										<div class="text-gray-500">
+											@if (settings.maxUsers === 0) {
+												Unlimited
+											} @else {
+												{{ settings.maxUsers }} users
+											}
+										</div>
+									</div>
+									<div>
+										<a href="#modalMaxUsers" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #users -->
+
+					<!-- BEGIN #appearance -->
+					<div id="appearance" class="mb-5">
+						<h4><i class="far fa-sun fa-fw"></i> Appearance</h4>
+						<p>Customize the look and feel of the application.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Default theme</div>
+										<div class="text-gray-500">{{ settings.defaultTheme || 'System default' }}</div>
+									</div>
+									<div>
+										<a href="#modalTheme" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Date format</div>
+										<div class="text-gray-500">{{ settings.dateFormat }}</div>
+									</div>
+									<div>
+										<a href="#modalDateFormat" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Timezone</div>
+										<div class="text-gray-500">{{ settings.timezone }}</div>
+									</div>
+									<div>
+										<a href="#modalTimezone" data-bs-toggle="modal" class="btn btn-default w-100px">Edit</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #appearance -->
+
+					<!-- BEGIN #system -->
+					<div id="system" class="mb-5">
+						<h4><i class="far fa-hdd fa-fw"></i> System</h4>
+						<p>Platform information and maintenance.</p>
+						<div class="card">
+							<div class="list-group list-group-flush">
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Application version</div>
+										<div class="text-gray-500">Prevello v1.0.0</div>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Platform</div>
+										<div class="text-gray-500">.NET 10 / Angular 21</div>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Database</div>
+										<div class="text-gray-500">SQL Server (Entity Framework Core)</div>
+									</div>
+								</div>
+								<div class="list-group-item d-flex align-items-center">
+									<div class="flex-fill">
+										<div>Authentication</div>
+										<div class="text-gray-500">ASP.NET Core Identity + Microsoft Entra ID</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END #system -->
+
+				</div>
+				<!-- END col-9 -->
+
+				<!-- BEGIN col-3 -->
+				<div class="col-xl-3">
+					<nav-scroll>
+						<a class="nav-link" href="#general" data-bs-toggle="scroll-to">General</a>
+						<a class="nav-link" href="#security" data-bs-toggle="scroll-to">Security</a>
+						<a class="nav-link" href="#sessions" data-bs-toggle="scroll-to">Sessions</a>
+						<a class="nav-link" href="#notifications" data-bs-toggle="scroll-to">Notifications</a>
+						<a class="nav-link" href="#users" data-bs-toggle="scroll-to">User Management</a>
+						<a class="nav-link" href="#appearance" data-bs-toggle="scroll-to">Appearance</a>
+						<a class="nav-link" href="#system" data-bs-toggle="scroll-to">System</a>
+					</nav-scroll>
+				</div>
+				<!-- END col-3 -->
+			</div>
+			<!-- END row -->
+		</div>
+		<!-- END col-10 -->
+	</div>
+	<!-- END row -->
+</div>
+<!-- END container -->
+
+<!-- BEGIN save bar -->
+@if (isDirty) {
+	<div class="position-fixed bottom-0 start-0 end-0 p-3 bg-body border-top shadow-lg" style="z-index:1050;">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-xl-10">
+					<div class="d-flex align-items-center justify-content-between">
+						<div class="text-body text-opacity-75">
+							<i class="fa fa-exclamation-circle text-warning me-2"></i> You have unsaved changes
+						</div>
+						<div>
+							<button class="btn btn-default me-2" (click)="discardChanges()">Discard</button>
+							<button class="btn btn-theme" (click)="saveSettings()" [disabled]="isSaving">
+								@if (isSaving) {
+									<span class="spinner-border spinner-border-sm me-1"></span>
+								}
+								Save Changes
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+<!-- END save bar -->
+
+<!-- BEGIN #modalChangePassword -->
+<div class="modal fade" id="modalChangePassword">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Change Password</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Current password</label>
+					<input type="password" class="form-control" [(ngModel)]="passwordForm.currentPassword">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">New password</label>
+					<input type="password" class="form-control" [(ngModel)]="passwordForm.newPassword">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Confirm new password</label>
+					<input type="password" class="form-control" [(ngModel)]="passwordForm.confirmPassword">
+				</div>
+				<div class="alert bg-body mb-0">
+					<b>Requirements:</b> Min {{ settings.passwordMinLength }} characters, must include uppercase, lowercase, digit, and special character.
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" (click)="changePassword()">Update Password</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalChangePassword -->
+
+<!-- BEGIN #modalPasswordPolicy -->
+<div class="modal fade" id="modalPasswordPolicy">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Password Strength Policy</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Minimum password length</label>
+					<select class="form-select" [(ngModel)]="settings.passwordMinLength">
+						<option [ngValue]="6">6 characters</option>
+						<option [ngValue]="8">8 characters</option>
+						<option [ngValue]="10">10 characters</option>
+						<option [ngValue]="12">12 characters</option>
+						<option [ngValue]="16">16 characters</option>
+					</select>
+				</div>
+				<div class="form-check mb-2">
+					<input type="checkbox" class="form-check-input" id="reqUppercase" [(ngModel)]="settings.passwordRequireUppercase">
+					<label class="form-check-label" for="reqUppercase">Require uppercase letter</label>
+				</div>
+				<div class="form-check mb-2">
+					<input type="checkbox" class="form-check-input" id="reqLowercase" [(ngModel)]="settings.passwordRequireLowercase">
+					<label class="form-check-label" for="reqLowercase">Require lowercase letter</label>
+				</div>
+				<div class="form-check mb-2">
+					<input type="checkbox" class="form-check-input" id="reqDigit" [(ngModel)]="settings.passwordRequireDigit">
+					<label class="form-check-label" for="reqDigit">Require digit</label>
+				</div>
+				<div class="form-check mb-2">
+					<input type="checkbox" class="form-check-input" id="reqSpecial" [(ngModel)]="settings.passwordRequireSpecial">
+					<label class="form-check-label" for="reqSpecial">Require special character</label>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalPasswordPolicy -->
+
+<!-- BEGIN #modalLockout -->
+<div class="modal fade" id="modalLockout">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Account Lockout Policy</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Max failed login attempts</label>
+					<select class="form-select" [(ngModel)]="settings.lockoutMaxAttempts">
+						<option [ngValue]="3">3 attempts</option>
+						<option [ngValue]="5">5 attempts</option>
+						<option [ngValue]="10">10 attempts</option>
+					</select>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Lockout duration</label>
+					<select class="form-select" [(ngModel)]="settings.lockoutDurationMinutes">
+						<option [ngValue]="5">5 minutes</option>
+						<option [ngValue]="15">15 minutes</option>
+						<option [ngValue]="30">30 minutes</option>
+						<option [ngValue]="60">60 minutes</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalLockout -->
+
+<!-- BEGIN #modalSessionTimeout -->
+<div class="modal fade" id="modalSessionTimeout">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Session Timeout</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Timeout after inactivity</label>
+					<select class="form-select" [(ngModel)]="settings.sessionTimeoutMinutes">
+						<option [ngValue]="15">15 minutes</option>
+						<option [ngValue]="30">30 minutes</option>
+						<option [ngValue]="60">1 hour</option>
+						<option [ngValue]="120">2 hours</option>
+						<option [ngValue]="480">8 hours</option>
+						<option [ngValue]="1440">24 hours</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalSessionTimeout -->
+
+<!-- BEGIN #modalRememberMe -->
+<div class="modal fade" id="modalRememberMe">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Remember Me Duration</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Keep user signed in for</label>
+					<select class="form-select" [(ngModel)]="settings.rememberMeDays">
+						<option [ngValue]="1">1 day</option>
+						<option [ngValue]="7">7 days</option>
+						<option [ngValue]="14">14 days</option>
+						<option [ngValue]="30">30 days</option>
+						<option [ngValue]="90">90 days</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalRememberMe -->
+
+<!-- BEGIN #modalDigest -->
+<div class="modal fade" id="modalDigest">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Activity Digest</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Send activity digest</label>
+					<select class="form-select" [(ngModel)]="settings.activityDigest">
+						<option value="none">Disabled</option>
+						<option value="daily">Daily</option>
+						<option value="weekly">Weekly</option>
+						<option value="monthly">Monthly</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalDigest -->
+
+<!-- BEGIN #modalDefaultRole -->
+<div class="modal fade" id="modalDefaultRole">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Default User Role</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Role assigned to new users</label>
+					<select class="form-select" [(ngModel)]="settings.defaultUserRole">
+						<option value="Viewer">Viewer (read-only)</option>
+						<option value="User">User (standard)</option>
+						<option value="Editor">Editor</option>
+						<option value="Admin">Admin</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalDefaultRole -->
+
+<!-- BEGIN #modalMaxUsers -->
+<div class="modal fade" id="modalMaxUsers">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Maximum Users</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Maximum number of users (0 = unlimited)</label>
+					<input type="number" class="form-control" [(ngModel)]="settings.maxUsers" min="0">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalMaxUsers -->
+
+<!-- BEGIN #modalTheme -->
+<div class="modal fade" id="modalTheme">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Default Theme</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Theme</label>
+					<select class="form-select" [(ngModel)]="settings.defaultTheme">
+						<option value="">System default</option>
+						<option value="light">Light</option>
+						<option value="dark">Dark</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalTheme -->
+
+<!-- BEGIN #modalDateFormat -->
+<div class="modal fade" id="modalDateFormat">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Date Format</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Preferred date format</label>
+					<select class="form-select" [(ngModel)]="settings.dateFormat">
+						<option value="MM/DD/YYYY">MM/DD/YYYY</option>
+						<option value="DD/MM/YYYY">DD/MM/YYYY</option>
+						<option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+						<option value="DD MMM YYYY">DD MMM YYYY</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalDateFormat -->
+
+<!-- BEGIN #modalTimezone -->
+<div class="modal fade" id="modalTimezone">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Timezone</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">Timezone</label>
+					<select class="form-select" [(ngModel)]="settings.timezone">
+						<option value="UTC">UTC</option>
+						<option value="America/New_York">Eastern Time (US)</option>
+						<option value="America/Chicago">Central Time (US)</option>
+						<option value="America/Denver">Mountain Time (US)</option>
+						<option value="America/Los_Angeles">Pacific Time (US)</option>
+						<option value="Europe/London">London (GMT)</option>
+						<option value="Europe/Paris">Central European Time</option>
+						<option value="Asia/Tokyo">Japan Standard Time</option>
+						<option value="Australia/Sydney">Australian Eastern Time</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="markDirty()">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalTimezone -->
+
+<!-- BEGIN #modalEditName -->
+<div class="modal fade" id="modalEditName">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Name</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">First name</label>
+					<input type="text" class="form-control" [(ngModel)]="nameForm.firstName">
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Last name</label>
+					<input type="text" class="form-control" [(ngModel)]="nameForm.lastName">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="saveName()">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalEditName -->
+
+<!-- BEGIN #modalEditEmail -->
+<div class="modal fade" id="modalEditEmail">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Email</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label class="form-label">New email address</label>
+					<input type="email" class="form-control" [(ngModel)]="emailForm.newEmail">
+				</div>
+				<div class="alert bg-body mb-0">
+					<b>Note:</b> You will need to verify your new email address before it takes effect.
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-theme" data-bs-dismiss="modal" (click)="saveEmail()">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END #modalEditEmail -->

@@ -1,0 +1,119 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "prevello-client": {
+      "projectType": "application",
+			"schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+			},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "baseHref": "/",
+            "outputPath": {
+              "base": "dist"
+            },
+            "index": "src/index.html",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
+            "tsConfig": "src/tsconfig.app.json",
+            "assets": [
+              "src/assets",
+              "src/favicon.ico"
+            ],
+            "styles": [
+              "src/styles.css",
+              "src/scss/styles.scss"
+            ],
+            "scripts": [
+            	"node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+            	"node_modules/apexcharts/dist/apexcharts.min.js",
+            	"node_modules/lity/dist/lity.min.js",
+            	"src/app/composables/slide.js",
+            	"src/app/composables/iconify.js"
+            ],
+            "allowedCommonJsDependencies": [
+            	"lodash", "lity", "jquery", "quill", "quill-delta", "bezier-easing", "ev-emitter", "moment", "apexcharts", "jsvectormap"
+            ],
+            "browser": "src/main.ts"
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "10mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "100kb",
+                  "maximumError": "100kb"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+						}
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "prevello-client:build:production"
+            },
+            "development": {
+              "buildTarget": "prevello-client:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "browserTarget": "prevello-client:build"
+          }
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

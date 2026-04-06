@@ -1,0 +1,7 @@
+.app {
+	&.app-without-sidebar {
+		& .app-content {
+			margin-inline-start: 0;
+		}
+	}
+}

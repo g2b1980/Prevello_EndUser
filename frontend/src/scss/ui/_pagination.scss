@@ -1,0 +1,10 @@
+.pagination {
+	& .page-item {
+		& .page-link {
+			border-radius: $pagination-border-radius;
+		}
+		& + .page-item {
+			margin-inline-start: $spacer * .5;
+		}
+	}
+}

@@ -1,0 +1,28 @@
+@keyframes appSidebarMobileSlideOut {
+	from {
+		inset-inline-start: 0;
+	}
+	to {
+		inset-inline-start: calc(var(--#{$prefix}app-sidebar-width) * -1);
+	}
+}
+@keyframes appSidebarMobileRemoveBackdrop {
+	from {
+		background: var(--#{$prefix}app-sidebar-mobile-backdrop-bg);
+	}
+	to {
+		background: transparent;
+	}
+}
+
+.app-sidebar-mobile-closed {
+	& .app-sidebar {
+		animation: appSidebarMobileSlideOut .1s ease;
+		inset-inline-start: calc(var(--#{$prefix}app-sidebar-width) * -1);
+	}
+	& .app-sidebar-mobile-backdrop {
+		display: block;
+		background: transparent;
+		animation: appSidebarMobileRemoveBackdrop .2s ease;
+	}
+}
